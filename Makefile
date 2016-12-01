@@ -5,7 +5,7 @@ NAME_SERVER = TurtleServer
 
 all: $(NAME_CLIENT).class $(NAME_SERVER).class
 
-$(NAME_CLIENT).class: $(NAME_CLIENT).java clean
+$(NAME_CLIENT).class: $(NAME_CLIENT).java
 	$(COMPIL) $(FLAG) $(NAME_CLIENT).java
 
 $(NAME_SERVER).class: $(NAME_SERVER).java TurtleCanvas.class

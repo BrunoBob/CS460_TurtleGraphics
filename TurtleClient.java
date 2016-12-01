@@ -1,57 +1,70 @@
 /**
- * Created by hrobohboy on 11/21/16.
+ * Created by Bruno T. and Tyler T. 11/29/16
  */
 
+//To do (Default value label and radio, bool alue connected)
+
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.io.IOException;
-import java.io.BufferedReader;
 import java.io.PrintWriter;
-import java.io.InputStreamReader;
 import java.net.ConnectException;
 
 public class TurtleClient extends Application {
 
+    //global variable initialization.
     Socket socket;
-    int quit = 0;
+    String ud_val;
+    PrintWriter output;
+    BufferedReader input;
+    Label turtle_coords;
 
     @Override
     public void start(Stage primaryStage) {
 
+        //set up the stage and give the window a title
         Stage window = primaryStage;
         window.setTitle("Turtle Client");
 
         //Server connection textfields and buttons
         Label server_label = new Label("Server: ");
         TextField server = new TextField();
-        server.setText("127.0.0.1");
         Label port_label = new Label("Port: ");
         TextField port = new TextField();
-        port.setText("8888");
         Button connect = new Button("Connect");
 
         //Turtle navigation textfield and buttons
         Label controls_label = new Label("Controls:");
         Label length_label = new Label("Line Length: ");
         TextField length = new TextField();
-        length.setText("0");
         Button north = new Button("N");
         Button south = new Button("S");
         Button east = new Button("E");
         Button west = new Button("W");
-        Button up_button = new Button("UP");
-        Button down_button = new Button("DOWN");
+        RadioButton up = new RadioButton("UP");
+        RadioButton down = new RadioButton("DOWN");
+        Button quit = new Button("Quit");
+        turtle_coords = new Label("To be updated...");
+
+        //Create the toggle group for the radio buttons and set user data
+        //this will be useful for when we need to send data to the server
+        ToggleGroup group = new ToggleGroup();
+        up.setUserData("0");
+        down.setUserData("1");
+        up.setToggleGroup(group);
+        down.setToggleGroup(group);
+
 
         //Initialize GridPane
         GridPane grid1 = new GridPane();
@@ -76,32 +89,69 @@ public class TurtleClient extends Application {
         grid2.add(south, 3, 4);
         grid2.add(east, 4, 3);
         grid2.add(west, 2, 3);
-        grid2.add(up_button, 5, 2);
-        grid2.add(down_button, 5, 4);
+        grid2.add(up, 5, 2);
+        grid2.add(down, 5, 4);
+        grid2.add(quit, 1, 5);
+        grid2.add(turtle_coords, 1, 6);
 
-        Button buttons[] = {north, south, east, west, up_button, down_button};
-
-        for(int i = 0 ; i < 6 ; i++){
-          int finalI = i;
-          buttons[i].setOnAction(e -> {
-              try {
-                  sendCommand(buttons[finalI].getText(), length.getText());
-              } catch (Exception e1) {
-                  System.err.println("Button press fail.");
-              }
-          });
-        }
 
         //Handle the user entering a server and a port
         connect.setOnAction(e -> {
             try {
                 connectServer(server.getText(), port.getText());
-            } catch (Exception e1) {
+            } catch (IOException e1) {
                 System.err.println("Error : didn't get the requested data");
             }
         });
 
+        //change value of radio button variable, to be used in send command
+        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+            public void changed(ObservableValue<? extends Toggle> ov,
+                                Toggle old_toggle, Toggle new_toggle) {
+                if (group.getSelectedToggle() != null) {
+                    ud_val = group.getSelectedToggle().getUserData().toString();
+                }
+            }
+        });
 
+        //directional button handlers
+        north.setOnAction(e -> {
+            try {
+                sendCommand(north.getText(), length.getText(), ud_val);
+            } catch (Exception e1){
+                System.err.println("Failed button press.");
+            }
+        });
+        south.setOnAction(e -> {
+            try {
+                sendCommand(south.getText(), length.getText(), ud_val);
+            } catch (Exception e1){
+                System.err.println("Failed button press.");
+            }
+        });
+        east.setOnAction(e -> {
+            try {
+                sendCommand(east.getText(), length.getText(), ud_val);
+            } catch (Exception e1){
+                System.err.println("Failed button press.");
+            }
+        });
+        west.setOnAction(e -> {
+            try {
+                sendCommand(west.getText(), length.getText(), ud_val);
+            } catch (Exception e1){
+                System.err.println("Failed button press.");
+            }
+        });
+
+        //quit button handler that calls a function to close all connections
+        quit.setOnAction(e -> {
+            try {
+                disconnectServer();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
 
 
         //Create the new scene and populate it with the GridPane
@@ -118,15 +168,22 @@ public class TurtleClient extends Application {
         window.show();
     }
 
-
-    private void sendCommand(String button_text, String length){
+    //Function that sends a formatted string to the server
+    //Where the server will then parse the string and use the commands to move the turtle
+    private void sendCommand(String button_text, String length, String up_down){
         //TODO:
         //Communicate with the server by sending the value of the button
         //"N", "S", "E", "W", "UP", "DOWN"
         //and sending the length of the line whenever a button is pressed.
-        int line_length = Integer.parseInt(length);
-        System.out.println(button_text);
+        String to_send = button_text + " " + length + " " + up_down;
+        System.out.println(to_send);
+        output.println(to_send);
 
+        try {
+            turtle_coords.setText(input.readLine());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //function used to connect to the server
@@ -134,11 +191,19 @@ public class TurtleClient extends Application {
         //connect to the server
         try {
             socket = new Socket(server, Integer.parseInt(port));
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            output = new PrintWriter(socket.getOutputStream(), true);
             System.out.println("Connected to the server");
         } catch (ConnectException e) {
             System.err.println("Error : can't connect to the server");
             System.exit(1);
         }
+    }
+
+    //Function used to disconnect from the server
+    private void disconnectServer() throws IOException{
+        output.close();
+        socket.close();
     }
 
     public static void main(String[] args) {
