@@ -12,6 +12,7 @@ public class TurtleServer extends Application{
   Stage stage;
   Canvas canvas;
 
+
   public void drawLine(double x1, double y1, double x2, double y2){
     //drawa line on the canvas
     GraphicsContext gc = canvas.getGraphicsContext2D();

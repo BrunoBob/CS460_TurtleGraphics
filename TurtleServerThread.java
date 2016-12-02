@@ -71,7 +71,6 @@ public class TurtleServerThread implements Runnable {
             }
             out.println(posX + " " + posY);
             if(message[2].compareTo("1") == 0){
-              //System.out.println("Why");
               canvas.drawLine(oldPosX, oldPosY, posX, posY);
             }
         }
@@ -80,6 +79,5 @@ public class TurtleServerThread implements Runnable {
           System.out.println("Error reading message");
       }
     }
-    //canvas.drawLine();
   }
 }

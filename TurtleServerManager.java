@@ -17,7 +17,7 @@ public class TurtleServerManager implements Runnable {
   //create the server socket and start listening for client connections
   public void run() {
     try{
-      ServerSocket servsock = new ServerSocket(1234);
+      ServerSocket servsock = new ServerSocket(8888);
       System.out.println("Waiting for Client connection...");
       while (true) {
         //once a client has connected make a new thread and do the run function
@@ -27,7 +27,8 @@ public class TurtleServerManager implements Runnable {
       }
     }
     catch(IOException e){
-
+      System.out.println("Error creating socket");
+      System.exit(1);
     }
   }
 }

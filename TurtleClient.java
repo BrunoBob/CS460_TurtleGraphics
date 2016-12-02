@@ -60,7 +60,7 @@ public class TurtleClient extends Application {
 
     //Set default values
     server.setText("127.0.0.1");
-    port.setText("1234");
+    port.setText("8888");
     length.setText("0");
     up.setSelected(true);
     ud_val = "0";
