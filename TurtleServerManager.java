@@ -8,9 +8,9 @@ import javafx.stage.Stage;
 
 public class TurtleServerManager implements Runnable {
 
-  TurtleCanvas canvas;
+  TurtleServer canvas;
 
-  TurtleServerManager(TurtleCanvas canvas) {
+  TurtleServerManager(TurtleServer canvas) {
     this.canvas = canvas;
   }
 
@@ -23,7 +23,7 @@ public class TurtleServerManager implements Runnable {
         //once a client has connected make a new thread and do the run function
         Socket sock = servsock.accept();
         System.out.println("Connected client: "+sock);
-        new Thread(new TurtleServer(sock, canvas)).start();
+        new Thread(new TurtleServerThread(sock, canvas)).start();
       }
     }
     catch(IOException e){

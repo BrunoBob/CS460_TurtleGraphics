@@ -8,14 +8,14 @@ all: $(NAME_CLIENT).class $(NAME_SERVER).class
 $(NAME_CLIENT).class: $(NAME_CLIENT).java
 	$(COMPIL) $(FLAG) $(NAME_CLIENT).java
 
-$(NAME_SERVER).class: $(NAME_SERVER).java TurtleCanvas.class
+$(NAME_SERVER).class: $(NAME_SERVER).java TurtleServerThread.class TurtleServerManager.class
 	$(COMPIL) $(FLAG) $(NAME_SERVER).java
 
-TurtleCanvas.class: TurtleCanvas.java
-	$(COMPIL) $(FLAG) TurtleCanvas.java
+TurtleServerThread.class: TurtleServerThread.java
+	$(COMPIL) $(FLAG) TurtleServerThread.java
 
 TurtleServerManager.class: TurtleServerManager.java
 	$(COMPIL) $(FLAG) TurtleServerManager.java
 
 clean:
-	rm $(NAME_CLIENT).class $(NAME_SERVER).class TurtleCanvas.class TurtleServerManager.class
+	rm *.class

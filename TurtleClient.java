@@ -60,9 +60,11 @@ public class TurtleClient extends Application {
 
     //Set default values
     server.setText("127.0.0.1");
-    port.setText("8888");
+    port.setText("1234");
     length.setText("0");
     up.setSelected(true);
+    ud_val = "0";
+    turtle_coords.setText("Position of cursor : 0 0");
 
     //Create the toggle group for the radio buttons and set user data
     //this will be useful for when we need to send data to the server
@@ -187,7 +189,7 @@ public class TurtleClient extends Application {
       output.println(to_send);
 
       try {
-        turtle_coords.setText(input.readLine());
+        turtle_coords.setText("Position of cursor : " + input.readLine());
       } catch (IOException e) {
         e.printStackTrace();
       }
